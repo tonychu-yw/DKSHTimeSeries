@@ -1,0 +1,418 @@
+---
+title: "STAT 519 Term Project"
+author: "Tony Chu"
+date: "3/20/2020"
+output: pdf_document
+---
+
+### Import Libraries
+
+```{r, message=FALSE}
+library(tidyverse)
+library(ggpubr)
+library(lubridate)
+library(forecast)
+library(tseries)
+library(grid)
+library(gridExtra)
+
+```
+
+### Import Functions
+
+```{r, message=FALSE}
+# Plot ACF with ggplot
+ggplot_acf <- function(dataset, acfdf) {
+  ggplot(data=acfdf, aes(x=lag, y=acf)) +
+    geom_hline(aes(yintercept=0)) +
+    geom_hline(yintercept=1.96/nrow(dataset)^0.5, color="dodgerblue3", 
+               linetype = "dashed") +
+    geom_hline(yintercept=-1.96/nrow(dataset)^0.5, color="dodgerblue3", 
+               linetype = "dashed") +
+    geom_segment(aes(xend=lag, yend=0), color="grey30") +
+    geom_point(aes(lag,acf), color="dodgerblue4", size=1) 
+}
+
+# LD recursions
+source("http://faculty.washington.edu/dbp/s519/R-code/LD-recursions.R")
+
+# Step-down LD recursions
+source("http://faculty.washington.edu/dbp/s519/R-code/step-down-LD-recursions.R")
+
+# Transform MA coefficients to ACVF 
+source("http://faculty.washington.edu/dbp/s519/R-code/ma-coeffs-to-acvf.R")
+
+# HR algorithm 
+source("http://faculty.washington.edu/dbp/s519/R-code/HR-algorithm.R")
+
+# AICC functions
+source("http://faculty.washington.edu/dbp/s519/R-code/AICC.R")
+
+# Residual tests
+source("http://faculty.washington.edu/dbp/s519/R-code/diagnostic-tests.R")
+
+```
+
+### Import Data & Data Cleaning
+
+```{r, message=FALSE}
+# Import data
+DKSH <- read_csv("Billing.csv")
+
+# Transform columns into datetime
+DKSH$SO.Sodate <- dmy(as.character(DKSH$SO.Sodate))
+DKSH$SO.POdate <- dmy(as.character(DKSH$SO.POdate))
+DKSH$Billingdate <- dmy(as.character(DKSH$Billingdate))
+DKSH$Duedate <- dmy(as.character(DKSH$Duedate))
+
+```
+
+### Transform Data into Time Series 
+
+```{r}
+by_product <- DKSH %>%
+  group_by(Partno) %>%
+  summarise(
+    count = n()
+  ) %>%
+  arrange(desc(count))
+
+# Extract time and order qty 
+ts <- DKSH %>%
+  filter(
+    str_detect(Partno, "LAP-0026")
+  ) %>%
+  select(
+    product = Partno,
+    date = SO.Sodate,
+    qty = Salesqty
+  ) %>%
+  arrange(date)
+
+# Group rows by weeks 
+ts_week <- ts %>%  
+  group_by(
+    year = year(date), 
+    week = week(date)
+  ) %>%
+  summarise(
+    qty = sum(qty)
+  )
+
+# Clean time series
+ts_week <- ts_week[-1,]
+ts_week[nrow(ts_week)+1,] = list(2012, 4, 0)
+ts_week[nrow(ts_week)+1,] = list(2013, 1, 0)
+ts_week <- arrange(ts_week, year, week)
+ts_week$year.week <- ts_week$year + (ts_week$week-1)/52
+ts_week$t <- 1:150
+
+# Replace 0 with 1 for further calculations
+zeros <- ts_week$qty == 0
+ts_week[zeros,]$qty <- 1
+
+```
+
+### Data Exploration
+
+```{r, message=FALSE, warning=FALSE}
+# Plot time series
+ggplot(ts_week, aes(year.week, qty)) +
+  geom_line() +
+  ggtitle("Time Series of Cable Sales Quantity") + xlab("time")
+
+# Dickey-Fuller Test
+adf.test(ts_week$qty)
+
+# Unit lag plot
+ts_week$qty.lag1 <- lag(ts_week$qty)
+lag.plot <- ggplot(ts_week, aes(qty, qty.lag1)) +
+  geom_point(size=0.8) +
+  ggtitle("Lag Plot (h = 1)")
+
+# Histogram
+bw <- IQR(ts_week$qty)/length(ts_week$qty)^(1/3)
+hist.plot <- ggplot(ts_week, aes(qty)) +
+  geom_histogram(aes(y=..density..), fill="grey50") +
+  stat_function(fun=dnorm, args=c(mean(ts_week$qty), sd=sd(ts_week$qty)), 
+                color="dodgerblue3") +
+  ggtitle("Histogram with Norm Approx")
+
+# ACF
+acf.list <- acf(ts_week$qty, lag.max=50, plot=FALSE)
+acf.df <- with(acf.list, data.frame(lag, acf))
+acf.plot <- ggplot_acf(ts_week, acf.df) + ggtitle("ACF")
+
+# PACF
+pacf.list <- acf(ts_week$qty, type="partial", lag.max=50, plot=FALSE)
+pacf.df <- with(pacf.list, data.frame(lag, acf))
+pacf.plot <- ggplot_acf(ts_week, pacf.df) + ggtitle("PACF") +  ylab("pacf") + ylim(-0.4, 0.4)
+
+# Plot 2x2 grid
+ggarrange(lag.plot, hist.plot,
+          acf.plot, pacf.plot,
+          ncol=2, nrow=2)
+
+```
+
+### Replacing Outliers
+
+```{r, warning=FALSE}
+# Identify outliers
+outliers <- ts_week$qty > mean(ts_week$qty)+3*sd(ts_week$qty)
+ts_week[outliers,c(1,2,3,5)]
+
+# Duplicate time series to replace outliers
+# Replacing outliers with LD recursions one-step ahead predictions
+ts_week$qty.mod <- ts_week$qty
+for (i in c(32, 70, 89, 129)) {
+  acvf.list <- acf(ts_week$qty.mod[1:i], lag.max=150, type="covariance", plot=FALSE)
+  acvf.df <- with(acvf.list, data.frame(lag, acf))
+  ts_week$qty.mod[i] <- round(sum(LD.recursions(acvf.df$acf)$coeffs*rev(ts_week$qty.mod[1:i-1])))
+}
+
+```
+
+### Data Exploration without Outliers 
+
+```{r, message=FALSE, warning=FALSE}
+# Plot time series
+ggplot(ts_week, aes(year.week, qty.mod)) +
+  geom_line() +
+  ggtitle("Time Series of Cable Sales Quantity with Outliers Replaced") + xlab("time") + ylab("qty")
+
+# Unit lag plot
+ts_week$qty.mod.lag1 <- lag(ts_week$qty.mod)
+lag.plot <- ggplot(ts_week, aes(qty.mod, qty.mod.lag1)) +
+  geom_point(size=0.8) +
+  ggtitle("Lag Plot (h = 1)") + xlab("qty") + ylab("qty.lag1")
+
+# Histogram
+hist.plot <- ggplot(ts_week, aes(qty.mod)) +
+  geom_histogram(aes(y=..density..), binwidth=350, fill="grey50") +
+  stat_function(fun=dnorm, args=c(mean(ts_week$qty.mod), sd=sd(ts_week$qty.mod)), 
+                color="dodgerblue3") +
+  ggtitle("Histogram with Norm Approx") + xlab("qty")
+
+# ACF
+acf.list <- acf(ts_week$qty.mod, lag.max=50, plot=FALSE)
+acf.df <- with(acf.list, data.frame(lag, acf))
+acf.plot <- ggplot_acf(ts_week, acf.df) + ggtitle("ACF")
+
+# PACF
+pacf.list <- acf(ts_week$qty.mod, lag.max=50, type="partial", plot=FALSE)
+pacf.df <- with(pacf.list, data.frame(lag, acf))
+pacf.plot <- ggplot_acf(ts_week, pacf.df) + 
+  ggtitle("PACF") + xlab("qty") + ylab("pacf") + ylim(-0.3, 0.3)
+
+# Plot 2x2 grid
+ggarrange(lag.plot, hist.plot, 
+          acf.plot, pacf.plot,
+          ncol=2, nrow=2)
+
+```
+
+### AR Model
+
+```{r}
+# Calculate AICC based on YW and Burg estimators
+AICC.yw <- sapply(1:20, function(p) AICC(ts_week$qty.mod, 
+                                         ar(ts_week$qty.mod, method="yw", aic=FALSE, order.max=p)$ar)$AICC)
+AICC.burg <- sapply(1:20, function(p) AICC(ts_week$qty.mod, 
+                                         ar(ts_week$qty.mod, method="burg", aic=FALSE, order.max=p)$ar)$AICC)
+
+# Plot AICC 
+AICC.AR <- data.frame(yw=AICC.yw, burg=AICC.burg)
+ggplot(data=AICC.AR, aes(x=1:20, y=yw)) +
+  geom_point(aes(color="dodgerblue3"), size=3) + 
+  geom_point(aes(x=1:20, y=burg, color="sienna3"), size=3) + 
+  scale_color_identity(
+    name = "Algorithm",
+    breaks = c("dodgerblue3", "sienna3"),
+    labels = c("YW", "Burg"),
+    guide = "legend") +
+  xlab("p") + ylab("AICC") + ggtitle("AICC of AR(p) Models")
+
+# Select AR(4)
+ar4.yw <- ar(ts_week$qty.mod, method="yw", aic=FALSE, order.max=4)
+ar4.burg <- ar(ts_week$qty.mod, method="burg", aic=FALSE, order.max=4)
+
+```
+
+### ARMA Model (MLE)
+
+```{r, warning=FALSE}
+# Reference: http://faculty.washington.edu/dbp/s519/R-code/13-R-code-2020.R
+
+# Varaince of time series
+var <- acf(ts_week$qty.mod,  type="covariance", plot=FALSE)$acf[1]
+
+# ARMA(1,1) with MLE
+arma11.ml <- arima(ts_week$qty.mod, order=c(1,0,1), method="ML")
+AICC.ml.11 <- AICC.given.ACVF(
+  ts_week$qty.mod, 
+  ARMAacf(ar=arma11.ml$model$phi, ma=arma11.ml$model$theta, lag=nrow(ts_week)-1)*var, 2)$AICC
+
+# ARMA(2,1) with MLE
+arma21.ml <- arima(ts_week$qty.mod, order=c(2,0,1), method="ML")
+AICC.ml.21 <- AICC.given.ACVF(
+  ts_week$qty.mod, 
+  ARMAacf(ar=arma21.ml$model$phi, ma=arma21.ml$model$theta, lag=nrow(ts_week)-1)*var, 3)$AICC
+
+# ARMA(1,2) with MLE
+arma12.ml <- arima(ts_week$qty.mod, order=c(1,0,2), method="ML")
+AICC.ml.12 <- AICC.given.ACVF(
+  ts_week$qty.mod, 
+  ARMAacf(ar=arma12.ml$model$phi, ma=arma12.ml$model$theta, lag=nrow(ts_week)-1)*var, 3)$AICC
+
+# ARMA(2,2) with MLE
+arma22.ml <- arima(ts_week$qty.mod, order=c(2,0,2), method="ML")
+AICC.ml.22 <- AICC.given.ACVF(
+  ts_week$qty.mod, 
+  ARMAacf(ar=arma22.ml$model$phi, ma=arma22.ml$model$theta, lag=nrow(ts_week)-1)*var, 4)$AICC
+
+```
+
+### ARMA Model (HR)
+
+```{r}
+# ARMA(1,1) with HR
+arma11.hr <- HR.algorithm(ts_week$qty.mod, 1, 1, 5)
+arma11.hr.acvf <- ARMAacf(arma11.hr$phi.tilde, arma11.hr$theta.tilde, lag=nrow(ts_week)-1)*var
+AICC.hr.11 <- AICC.given.ACVF(ts_week$qty.mod, arma11.hr.acvf, 2)$AICC
+
+# ARMA(2,1) with HR
+arma21.hr <- HR.algorithm(ts_week$qty.mod, 2, 1, 5)
+arma21.hr.acvf <- ARMAacf(arma21.hr$phi.tilde, arma21.hr$theta.tilde, lag=nrow(ts_week)-1)*var
+AICC.hr.21 <- AICC.given.ACVF(ts_week$qty.mod, arma21.hr.acvf, 3)$AICC
+
+# ARMA(1,2) with HR
+arma12.hr <- HR.algorithm(ts_week$qty.mod, 1, 2, 5)
+arma12.hr.acvf <- ARMAacf(arma12.hr$phi.tilde, arma12.hr$theta.tilde, lag=nrow(ts_week)-1)*var
+AICC.hr.12 <- AICC.given.ACVF(ts_week$qty.mod, arma12.hr.acvf, 3)$AICC
+
+# ARMA(2,2) with HR
+arma22.hr <- HR.algorithm(ts_week$qty.mod, 2, 2, 5)
+arma22.hr.acvf <- ARMAacf(arma22.hr$phi.tilde, arma22.hr$theta.tilde, lag=nrow(ts_week)-1)*var
+AICC.hr.22 <- AICC.given.ACVF(ts_week$qty.mod, arma22.hr.acvf, 4)$AICC
+
+```
+
+### Residuals
+
+```{r, message=FALSE}
+# ARMA(1,1) Residuals Histogram
+Wt.arma <- arma11.ml$residuals 
+Wt.arma.hist.plot <- ggplot(Wt.arma, aes(Wt.arma)) +
+  geom_histogram(aes(y=..density..), bins=20, fill="grey50") +
+  stat_function(fun=dnorm, args=c(mean(Wt.arma), sd=sd(Wt.arma)), 
+                color="dodgerblue3") +
+  ggtitle("ARMA(1,1) Residuals Histogram")
+
+# ARMA(1,1) Residuals ACF
+Wt.arma.acf.list <- acf(Wt.arma, lag.max=50, plot=FALSE)
+Wt.arma.acf.df <- with(Wt.arma.acf.list, data.frame(lag, acf))[-1,]
+Wt.arma.acf.plot <- ggplot_acf(as.data.frame(Wt.arma), Wt.arma.acf.df) + ggtitle("ARMA(1,1) Residuals ACF")
+
+# AR(4) Residuals Histogram
+Wt.ar4 <- as.data.frame(ar4.burg$resid[-c(1:4)])
+colnames(Wt.ar4) <- c("W.t")
+Wt.ar4.hist.plot <- ggplot(Wt.ar4, aes(W.t)) +
+  geom_histogram(aes(y=..density..), bins=20, fill="grey50") +
+  stat_function(fun=dnorm, args=c(mean(Wt.ar4$W.t), sd=sd(Wt.ar4$W.t)), 
+                color="dodgerblue3") +
+  ggtitle("AR(4) Residuals Histogram")
+
+# AR(4) Residuals ACF
+Wt.ar4.acf.list <- acf(Wt.ar4$W.t, lag.max=50, plot=FALSE)
+Wt.ar4.acf.df <- with(Wt.ar4.acf.list, data.frame(lag, acf))[-1,]
+Wt.ar4.acf.plot <- ggplot_acf(Wt.ar4, Wt.ar4.acf.df) + ggtitle("AR(4) Residuals ACF")
+
+# Plot 2x2 grid
+ggarrange(Wt.arma.hist.plot, Wt.ar4.hist.plot,
+          Wt.arma.acf.plot, Wt.ar4.acf.plot,
+          ncol=2, nrow=2)
+
+```
+
+### Portmanteau Test
+
+```{r, warning=FALSE}
+# ARMA(1,1) portmanteau test
+port <- as_tibble(sapply(1:20, function(h) {
+    Box.test(Wt.arma, lag = h, type = "Ljung-Box")$statistic
+  }))
+port$h <- 1:20 
+colnames(port) <- c("Q_h", "h") 
+port$bound <- sapply(1:20, function(df) {qchisq(0.05, df, lower = FALSE)})
+arma11.port.plot <-ggplot(port[3:20,], aes(h, Q_h)) +
+  geom_point() +
+  geom_line(aes(h, bound), color="red") +
+  xlim(0,20) + ggtitle("Portmanteau Tests of ARMA(1,1)") + ylab(expression('Q'[h]))
+
+# AR(4) portmanteau test
+port <- as_tibble(sapply(1:20, function(h) {
+    Box.test(Wt.ar4, lag = h, type = "Ljung-Box")$statistic
+  }))
+port$h <- 1:20 
+colnames(port) <- c("Q_h", "h") 
+port$bound <- sapply(1:20, function(df) {qchisq(0.05, df, lower = FALSE)})
+ar4.port.plot <- ggplot(port[5:20,], aes(h, Q_h)) +
+  geom_point() +
+  geom_line(aes(h, bound), color="red") +
+  xlim(0,20) + ggtitle("Portmanteau Tests of AR(4)") + ylab(expression('Q'[h]))
+
+# Plot
+ggarrange(arma11.port.plot, ar4.port.plot, ncol=2)
+
+```
+
+### Other Residual Tests
+
+```{r}
+test_p_values <- tibble(
+  Test = c("turning point", "difference-sign", "rank", "runs"),
+  ARMA = 0,
+  AR = 0
+)
+
+# Turning point tests
+test_p_values[1,2] <- turning.point.test(Wt.arma)$p.value
+test_p_values[1,3] <- turning.point.test(Wt.ar4$W.t)$p.value
+
+# Difference-sign tests
+test_p_values[2,2] <- difference.sign.test(Wt.arma)$p.value
+test_p_values[2,3] <- difference.sign.test(Wt.ar4$W.t)$p.value
+
+# Rank tests
+test_p_values[3,2] <- rank.test(Wt.arma)$p.value
+test_p_values[3,3] <- rank.test(Wt.ar4$W.t)$p.value
+
+# Runs tests
+test_p_values[4,2] <- runs.test(Wt.arma)$p.value
+test_p_values[4,3] <- runs.test(Wt.ar4$W.t)$p.value
+
+```
+
+### Forecast
+
+```{r}
+# Forecast ARMA
+arma.for <- forecast(arma11.ml)
+
+# Plot time series
+forecast <- tibble(
+  t = 151:160,
+  mean = arma.for$mean,
+  upper = arma.for$upper[11:20],
+  lower = arma.for$lower[11:20]
+)
+ggplot(ts_week, aes(t, qty.mod)) +
+  geom_line() +
+  geom_line(data=forecast, aes(x=t, y=mean), color="coral2") +
+  geom_line(data=forecast, aes(x=t, y=upper), color="dodgerblue3", linetype="dashed") +
+  geom_line(data=forecast, aes(x=t, y=lower), color="dodgerblue3", linetype="dashed") +
+  ggtitle("Time Series of Cable Sales Quantity with Forecasts") + xlab("t") + ylab("qty")
+
+```
+
