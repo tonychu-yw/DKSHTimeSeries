@@ -62,6 +62,6 @@ I then fitted ARMA(p,q) models to the time series based on Hannan-Rissanen algor
 <div align="center"> Fig6: Results of ARMA(p,q) models based on Hannan-Rissanen and maximum likelihood methods </div>
 <br/>
 
-The results show that maximum likelihood estimation performs consistently better than Hannan-Rissanen algorithm, while both methods indicate that ARMA(1,1) is the best model with the lowest AICC = 2486.78, indicating that ARMA(1,1) is a better model than AR(4) of which AICC = 2493. Please also note that the result of ARMA(2,2) – ML is quite different from others, giving <img src="http://latex.codecogs.com/gif.latex?\ {\phi}^2" /> and $θ^2$ more weights than $ϕ^1$ and $θ^1$.  
+The results show that maximum likelihood estimation performs consistently better than Hannan-Rissanen algorithm, while both methods indicate that ARMA(1,1) is the best model with the lowest AICC = 2486.78, indicating that ARMA(1,1) is a better model than AR(4) of which AICC = 2493. Please also note that the result of ARMA(2,2) – ML is quite different from others, giving <img src="http://latex.codecogs.com/gif.latex?\ phi^2" /> and $θ^2$ more weights than $ϕ^1$ and $θ^1$.  
 
 
