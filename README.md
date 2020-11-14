@@ -84,7 +84,7 @@ The results show that ARMA(1,1) seems not a good fit to the data: the residuals 
 The result of portmanteau tests indicate that residuals of both models are IID noises. The results of the rest of the tests are shown in the following chart. 
 
 <br/>
-<p align="center"> <img src = "fig9_tests.png" width="60%" height="60%"> </p>
+<p align="center"> <img src = "fig9_tests.png" width="40%" height="40%"> </p>
 <div align="center"> Fig9: P-values of tests for ARMA(1,1) and AR(4) </div>
 <br/>
 
