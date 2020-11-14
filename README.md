@@ -7,6 +7,7 @@ In this paper, I will analyze the DKSH dataset, which contains weekly sales data
 
 
 
+<br/>
 ### II. Data Exploration
 The following figure shows the DKSH dataset.
 
@@ -45,6 +46,7 @@ The lag plot shows that there seems to be no significant correlation between X_(
 
 
 
+<br/>
 ### III. 
 
 
