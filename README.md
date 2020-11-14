@@ -20,7 +20,7 @@ The most significant feature of this time series is that there are several spike
 To further explore this dataset, I plotted the lag plot of lag = 1, histogram of the dataset, and ACF and PACF. 
 
 <br/>
-<p align="center"> <img src = "fig2_explore1.png" width="60%" height="60%"> </p>
+<p align="center"> <img src = "fig2_explore1.png" width="80%" height="80%"> </p>
 <div align="center"> Fig2: Preliminary data exploration </div>
 <br/>
 
@@ -37,7 +37,7 @@ t = 32, t = 70, t = 89, and t = 129. I implemented Levinson-Durbin recursions to
 Similarly, I plotted the lag plot of lag = 1, histogram, and ACF and PACF of the new time series.
 
 <br/>
-<p align="center"> <img src = "fig4_explore2.png" width="60%" height="60%"> </p>
+<p align="center"> <img src = "fig4_explore2.png" width="80%" height="80%"> </p>
 <div align="center"> Fig4: Data exploration without outliers </div>
 <br/>
 
@@ -45,13 +45,24 @@ The lag plot shows that there seems to be no significant correlation between X_(
 
 
 
-### III. 
+### III. Model Selection
+In this section, I will fit this time series with AR(p) and ARMA(p,q) models. I first implemented Yule-Walker estimation and Burg’s algorithm to determine the best AR(p) model. The following figure shows the AICC of different AR(p) models. 
 
+<br/>
+<p align="center"> <img src = "fig5_AR.png" width="60%" height="60%"> </p>
+<div align="center"> Fig5: AICC of different AR(p) models based on Yule-Walker and Burg methods </div>
+<br/>
 
+The result shows that AR(4) is the best model with AICC = 2493. This may contradict our previous assumption that AR(2) or AR(3) may be a good choice. However, if we review the PACF in Fig4, we may see that the PACF at lag 4 is close to the 95% confidence boundary; the cut-off between lag 4 and 5 is more significant than that of between lag 3 and 4. Therefore, AR(4) may also be a reasonable choice. 
 
+I then fitted ARMA(p,q) models to the time series based on Hannan-Rissanen algorithm and maximum likelihood estimation. The results are shown in the following chart.
 
+<br/>
+<p align="center"> <img src = "fig6_ARMA.png" width="60%" height="60%"> </p>
+<div align="center"> Fig6: Results of ARMA(p,q) models based on Hannan-Rissanen and maximum likelihood methods </div>
+<br/>
 
-
+The results show that maximum likelihood estimation performs consistently better than Hannan-Rissanen algorithm, while both methods indicate that ARMA(1,1) is the best model with the lowest AICC = 2486.78, indicating that ARMA(1,1) is a better model than AR(4) of which AICC = 2493. Please also note that the result of ARMA(2,2) – ML is quite different from others, giving ϕ ̂_2 and θ ̂_2 more weights than ϕ ̂_1 and θ ̂_1.  
 
 
 
