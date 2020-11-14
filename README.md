@@ -7,7 +7,7 @@ In this paper, I will analyze the DKSH dataset, which contains weekly sales data
 The following figure shows the DKSH dataset.
 
 <p align="center">
-  ![image](~/fig1_ts)
+  ![image](https://github.com/tonychu-yw/STAT-519-Time-Series-Analysis/blob/master/fig1_ts)
 </p>
 
 The most significant feature of this time series is that there are several spikes, or so-called bulk orders in business. These spikes may be crucial in terms of decision making in business, yet they might cause a serious impact on our analysis. I also conducted a Dickey-Fuller test to check whether this time series is stationary, and the result shows a p-value of 0.01. Therefore, we may conclude that this time series is stationary.
