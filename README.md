@@ -8,6 +8,7 @@ The following figure shows the DKSH dataset.
 
 <p align="center">
   <img src = "fig1_ts.png">
+  Fig1: DKSH time series
 </p>
 
 The most significant feature of this time series is that there are several spikes, or so-called bulk orders in business. These spikes may be crucial in terms of decision making in business, yet they might cause a serious impact on our analysis. I also conducted a Dickey-Fuller test to check whether this time series is stationary, and the result shows a p-value of 0.01. Therefore, we may conclude that this time series is stationary.
