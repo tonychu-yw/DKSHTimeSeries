@@ -5,9 +5,8 @@
 ### I. Introduction
 In this paper, I will analyze the DKSH dataset, which contains weekly sales data of industrial cables from Dec. 2011 to Oct. 2014. The DKSH dataset was acquired through an industry-university joint research project initiated by the course Statistical Data Analysis for Business and Management in my junior year at National Taiwan University. DKSH is a market expansion services provider in the Asia-Pacific area that procures materials and supplies for its customers. To further reduce its transportation and storage costs, DKSH hoped to forecast its sales (demand of customers) more accurately based on this dataset. However, since statistical methods covered in the course Statistical Data Analysis for Business and Management included only regression analysis and categorical data analysis, I could not analyze this dataset efficiently at that time. Thus, the purpose of this paper is to revisit the DKSH dataset and forecast the sales based on time series analysis. I will first perform exploratory data analysis, propose several possible time series models, and then conduct diagnostic tests to see if these models are good fits for the data. Finally, the conclusion will be made based on the model that best fits the dataset.
 
-
-
 <br/>
+
 ### II. Data Exploration
 The following figure shows the DKSH dataset.
 
@@ -44,9 +43,8 @@ Similarly, I plotted the lag plot of lag = 1, histogram, and ACF and PACF of the
 
 The lag plot shows that there seems to be no significant correlation between X_(t+1) and X_t. The histogram shows that the time series may be approximately Gaussian but there is a significant bump on the right side of the distribution. The PACF plot shows that an AR(2) or AR(3) model may be a suitable choice; however, the ACF plot does not show an exponential decay which AR(p) models should have. Thus, an ARMA(p,q) may also be considered. 
 
-
-
 <br/>
+
 ### III. 
 
 
