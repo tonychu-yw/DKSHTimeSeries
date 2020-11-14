@@ -8,6 +8,7 @@ The following figure shows the DKSH dataset.
 
 <p align="center">
   <img src = "fig1_ts.png">
+  
   Fig1: DKSH time series
 </p>
 
