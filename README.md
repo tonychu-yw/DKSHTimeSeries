@@ -65,3 +65,40 @@ I then fitted ARMA(p,q) models to the time series based on Hannan-Rissanen algor
 The results show that maximum likelihood estimation performs consistently better than Hannan-Rissanen algorithm, while both methods indicate that ARMA(1,1) is the best model with the lowest AICC = 2486.78, indicating that ARMA(1,1) is a better model than AR(4) of which AICC = 2493. Please also note that the result of ARMA(2,2) – ML is quite different from others, giving <img src="http://latex.codecogs.com/gif.latex?\ phi^2" /> and <img src="http://latex.codecogs.com/gif.latex?\ theta^2" /> more weights than <img src="http://latex.codecogs.com/gif.latex?\ phi^1" /> and <img src="http://latex.codecogs.com/gif.latex?\ theta^1" />.  
 
 
+
+### IV. Diagnostic Tests
+Before declaring that ARMA(1,1) is the best model, we need to conduct diagnostic tests to see whether ARMA(1,1) is a good fit to the data. In comparison, I also conducted diagnostic tests for AR(4) model. 
+
+<br/>
+<p align="center"> <img src = "fig7_res.png" width="80%" height="80%"> </p>
+<div align="center"> Fig7: Residuals of ARMA(1,1) and AR(4) models </div>
+<br/>
+
+The results show that ARMA(1,1) seems not a good fit to the data: the residuals stray a bit away from Gaussian, and several values exceed the 95% confidence boundaries in the ACF plot. In comparison, the residuals of AR(4) fits better to Gaussian; however, the values at lag = 19 and lag = 44 still exceed the 95% confidence boundaries in the ACF plot. Thus, based on Fig7, both models may not be good fits to the data. To further examine whether both models are valid, I applied them to several hypothesis testings: portmanteau test, turning point test, difference-sign test, rank test, and runs test. 
+
+<br/>
+<p align="center"> <img src = "fig8_port.png" width="60%" height="60%"> </p>
+<div align="center"> Fig8: Portmanteau tests of ARMA(1,1) and AR(4) residuals </div>
+<br/>
+
+The result of portmanteau tests indicate that residuals of both models are IID noises. The results of the rest of the tests are shown in the following chart. 
+
+<br/>
+<p align="center"> <img src = "fig9_tests.png" width="60%" height="60%"> </p>
+<div align="center"> Fig9: P-values of tests for ARMA(1,1) and AR(4) </div>
+<br/>
+
+All tests indicate that ARMA(1,1) residuals are IID noise, while the rank test indicates that AR(4) residuals may not be IID noise since p-value < 0.05. In conclusion, considering all results from our diagnostic tests, ARMA(1,1) may be a better fit to the data since all hypothesis testings suggest that its residuals are IID noise. However, we still need to beware that the ACF plot indicates that there are some correlations between the residuals.  
+
+
+
+### V. Conclusion
+In this paper, I have examined the DKSH dataset and concluded that ARMA(1,1) based on maximum likelihood estimation is the best fit to the time series. The results of the diagnostics tests also support the model, though there are some concerns regarding the ACF of residuals. The following plot shows the forecast of the ARMA(1,1). 
+
+<br/>
+<p align="center"> <img src = "fig10_for.png" width="60%" height="60%"> </p>
+<div align="center"> Fig10: DKSH time series with up to ten-steps-ahead forecasts and 95% confidence bounds </div>
+<br/>
+
+However, please note that in this paper we have omitted the impact of outliers, which should be considered in real business cases. A common approach to tackle this problem is to apply the concept of service level, which is the probability that a business would not run out of stocks given a certain amount of inventory. For instance, a 95% service level indicates that 95% of the time the business would not run out of stocks. Thus, to reach a 95% service level, DKSH should prepare its inventory based on the upper 95% confidence bound. For instance, given that the upper 95% confidence bounds of the first four weeks forecasted are 3612, 3613, 3613, and 3613, DKSH should prepare 14451 stocks for the following month to reach 95% service level. Applying higher percentages of service level could further mitigate the impact of outliers. 
+
