@@ -62,7 +62,7 @@ I then fitted ARMA(p,q) models to the time series based on Hannan-Rissanen algor
 <div align="center"> Fig6: Results of ARMA(p,q) models based on Hannan-Rissanen and maximum likelihood methods </div>
 <br/>
 
-The results show that maximum likelihood estimation performs consistently better than Hannan-Rissanen algorithm, while both methods indicate that ARMA(1,1) is the best model with the lowest AICC = 2486.78, indicating that ARMA(1,1) is a better model than AR(4) of which AICC = 2493. Please also note that the result of ARMA(2,2) – ML is quite different from others, giving <img src="http://latex.codecogs.com/gif.latex?\ phi^2" /> and <img src="http://latex.codecogs.com/gif.latex?\ theta^2" /> more weights than <img src="http://latex.codecogs.com/gif.latex?\ phi^1" /> and <img src="http://latex.codecogs.com/gif.latex?\ theta^1" />.  
+The results show that maximum likelihood estimation performs consistently better than Hannan-Rissanen algorithm, while both methods indicate that ARMA(1,1) is the best model with the lowest AICC = 2486.78, indicating that ARMA(1,1) is a better model than AR(4) of which  AICC = 2493. Please also note that the result of ARMA(2,2) – ML is quite different from others, giving <img src="http://latex.codecogs.com/gif.latex?\ phi^2" /> and <img src="http://latex.codecogs.com/gif.latex?\ theta^2" /> more weights than <img src="http://latex.codecogs.com/gif.latex?\ phi^1" /> and <img src="http://latex.codecogs.com/gif.latex?\ theta^1" />.  
 
 
 
@@ -88,7 +88,7 @@ The result of portmanteau tests indicate that residuals of both models are IID n
 <div align="center"> Fig9: P-values of tests for ARMA(1,1) and AR(4) </div>
 <br/>
 
-All tests indicate that ARMA(1,1) residuals are IID noise, while the rank test indicates that AR(4) residuals may not be IID noise since p-value < 0.05. In conclusion, considering all results from our diagnostic tests, ARMA(1,1) may be a better fit to the data since all hypothesis testings suggest that its residuals are IID noise. However, we still need to beware that the ACF plot indicates that there are some correlations between the residuals.  
+All tests indicate that ARMA(1,1) residuals are IID noise, while the rank test indicates that AR(4) residuals may not be IID noise since  p-value < 0.05. In conclusion, considering all results from our diagnostic tests, ARMA(1,1) may be a better fit to the data since all hypothesis testings suggest that its residuals are IID noise. However, we still need to beware that the ACF plot indicates that there are some correlations between the residuals.  
 
 
 
