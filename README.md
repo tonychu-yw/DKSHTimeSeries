@@ -20,7 +20,7 @@ The most significant feature of this time series is that there are several spike
 To further explore this dataset, I plotted the lag plot of lag = 1, histogram of the dataset, and ACF and PACF. 
 
 <br/>
-<p align="center"> <img src = "fig2_explore1.png" width="80%" height="80%"> </p>
+<p align="center"> <img src = "fig2_explore1.png"> </p>
 <div align="center"> Fig2: Preliminary data exploration </div>
 <br/>
 
