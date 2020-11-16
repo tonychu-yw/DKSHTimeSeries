@@ -27,7 +27,7 @@ To further explore this dataset, I plotted the lag plot of lag = 1, histogram of
 Both the lag plot and the histogram show that there are a few significant outliers, consistent with what we discovered in Fig1. The ACF and PACF plots also indicate that the outliers may have a significant impact on the correlations. For instance, the significant spike at lag = 19 may be caused by the correlation between t = 70 and t = 89, when there are two sales spikes in Mar. 2013 and Aug. 2013 with values of 12500 and 8780 respectively. Therefore, to better forecast this time series, I will replace these outliers with some other alternatives. However, as I mentioned earlier, please note that these spikes may be crucial in business decision making. For instance, in response to the outbreak of pandemic, retailers may want to prepare for unexpected sales increases to ensure that every customer has the items they need during home quarantine. Here I am replacing these outliers just to better estimate the rest of the sales that are considered as ordinary situations. 
 
 I defined outliers as values that are three standard deviations away from the mean  and discovered the following four outliers: 
-t = 32, t = 70, <br /> t = 89, and t = 129. I implemented Levinson-Durbin recursions to replace these outliers with one-step-ahead predictions. That is, for instance, for the outlier at t = 32, I replaced it with the prediction based on t = 1 to 31 through Levinson-Durbin recursions.  The following figure shows the time series with outliers being replaced. 
+t = 32, t = 70, t = 89, and t = 129. I implemented Levinson-Durbin recursions to replace these outliers with one-step-ahead predictions. That is, for instance, for the outlier at t = 32, I replaced it with the prediction based on t = 1 to 31 through Levinson-Durbin recursions.  The following figure shows the time series with outliers being replaced. 
 
 <br/>
 <p align="center"> <img src = "fig3_tsnew.png" width="60%" height="60%"> </p>
@@ -62,7 +62,7 @@ I then fitted ARMA(p,q) models to the time series based on Hannan-Rissanen algor
 <div align="center"> Fig6: Results of ARMA(p,q) models based on Hannan-Rissanen and maximum likelihood methods </div>
 <br/>
 
-The results show that maximum likelihood estimation performs consistently better than Hannan-Rissanen algorithm, while both methods indicate that ARMA(1,1) is the best model with the lowest AICC = 2486.78, indicating that ARMA(1,1) is a better model than AR(4) of which <br /> AICC = 2493. Please also note that the result of ARMA(2,2) – ML is quite different from others, giving <img src="http://latex.codecogs.com/gif.latex?\ phi^2" /> and <img src="http://latex.codecogs.com/gif.latex?\ theta^2" /> more weights than <img src="http://latex.codecogs.com/gif.latex?\ phi^1" /> and <img src="http://latex.codecogs.com/gif.latex?\ theta^1" />.  
+The results show that maximum likelihood estimation performs consistently better than Hannan-Rissanen algorithm, while both methods indicate that ARMA(1,1) is the best model with the lowest AICC = 2486.78, indicating that ARMA(1,1) is a better model than AR(4) of which AICC = 2493. Please also note that the result of ARMA(2,2) – ML is quite different from others, giving <img src="http://latex.codecogs.com/gif.latex?\ phi^2" /> and <img src="http://latex.codecogs.com/gif.latex?\ theta^2" /> more weights than <img src="http://latex.codecogs.com/gif.latex?\ phi^1" /> and <img src="http://latex.codecogs.com/gif.latex?\ theta^1" />.  
 
 
 
@@ -88,7 +88,7 @@ The result of portmanteau tests indicate that residuals of both models are IID n
 <div align="center"> Fig9: P-values of tests for ARMA(1,1) and AR(4) </div>
 <br/>
 
-All tests indicate that ARMA(1,1) residuals are IID noise, while the rank test indicates that AR(4) residuals may not be IID noise since <br /> p-value < 0.05. In conclusion, considering all results from our diagnostic tests, ARMA(1,1) may be a better fit to the data since all hypothesis testings suggest that its residuals are IID noise. However, we still need to beware that the ACF plot indicates that there are some correlations between the residuals.  
+All tests indicate that ARMA(1,1) residuals are IID noise, while the rank test indicates that AR(4) residuals may not be IID noise since p-value < 0.05. In conclusion, considering all results from our diagnostic tests, ARMA(1,1) may be a better fit to the data since all hypothesis testings suggest that its residuals are IID noise. However, we still need to beware that the ACF plot indicates that there are some correlations between the residuals.  
 
 
 
