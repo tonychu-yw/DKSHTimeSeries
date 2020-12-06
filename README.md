@@ -11,7 +11,7 @@ In this paper, I will analyze the DKSH dataset, which contains weekly sales data
 The following figure shows the DKSH dataset.
 
 <br/>
-<p align="center"> <img src = "fig1_ts.png"> </p>
+<p align="center"> <img src = "./figures/fig1_ts.png"> </p>
 <div align="center"> Fig1: DKSH time series </div>
 <br/>
 
