@@ -20,7 +20,7 @@ The most significant feature of this time series is that there are several spike
 To further explore this dataset, I plotted the lag plot of lag = 1, histogram of the dataset, and ACF and PACF. 
 
 <br/>
-<p align="center"> <img src = "fig2_explore1.png"> </p>
+<p align="center"> <img src = "./figures/fig2_explore1.png"> </p>
 <div align="center"> Fig2: Preliminary data exploration </div>
 <br/>
 
@@ -30,14 +30,14 @@ I defined outliers as values that are three standard deviations away from the me
 t = 32, t = 70, t = 89, and t = 129. I implemented Levinson-Durbin recursions to replace these outliers with one-step-ahead predictions. That is, for instance, for the outlier at t = 32, I replaced it with the prediction based on t = 1 to 31 through Levinson-Durbin recursions.  The following figure shows the time series with outliers being replaced. 
 
 <br/>
-<p align="center"> <img src = "fig3_tsnew.png"> </p>
+<p align="center"> <img src = "./figures/fig3_tsnew.png"> </p>
 <div align="center"> Fig3: DKSH time series with outliers replaced </div>
 <br/>
 
 Similarly, I plotted the lag plot of lag = 1, histogram, and ACF and PACF of the new time series.
 
 <br/>
-<p align="center"> <img src = "fig4_explore2.png"> </p>
+<p align="center"> <img src = "./figures/fig4_explore2.png"> </p>
 <div align="center"> Fig4: Data exploration without outliers </div>
 <br/>
 
@@ -49,7 +49,7 @@ The lag plot shows that there seems to be no significant correlation between X_(
 In this section, I will fit this time series with AR(p) and ARMA(p,q) models. I first implemented Yule-Walker estimation and Burg’s algorithm to determine the best AR(p) model. The following figure shows the AICC of different AR(p) models. 
 
 <br/>
-<p align="center"> <img src = "fig5_AR.png"> </p>
+<p align="center"> <img src = "./figures/fig5_AR.png"> </p>
 <div align="center"> Fig5: AICC of different AR(p) models based on Yule-Walker and Burg methods </div>
 <br/>
 
@@ -58,7 +58,7 @@ The result shows that AR(4) is the best model with AICC = 2493. This may contrad
 I then fitted ARMA(p,q) models to the time series based on Hannan-Rissanen algorithm and maximum likelihood estimation. The results are shown in the following chart.
 
 <br/>
-<p align="center"> <img src = "fig6_ARMA.png"> </p>
+<p align="center"> <img src = "./figures/fig6_ARMA.png"> </p>
 <div align="center"> Fig6: Results of ARMA(p,q) models based on Hannan-Rissanen and maximum likelihood methods </div>
 <br/>
 
@@ -70,21 +70,21 @@ The results show that maximum likelihood estimation performs consistently better
 Before declaring that ARMA(1,1) is the best model, we need to conduct diagnostic tests to see whether ARMA(1,1) is a good fit to the data. In comparison, I also conducted diagnostic tests for AR(4) model. 
 
 <br/>
-<p align="center"> <img src = "fig7_res.png"> </p>
+<p align="center"> <img src = "./figures/fig7_res.png"> </p>
 <div align="center"> Fig7: Residuals of ARMA(1,1) and AR(4) models </div>
 <br/>
 
 The results show that ARMA(1,1) seems not a good fit to the data: the residuals stray a bit away from Gaussian, and several values exceed the 95% confidence boundaries in the ACF plot. In comparison, the residuals of AR(4) fits better to Gaussian; however, the values at lag = 19 and lag = 44 still exceed the 95% confidence boundaries in the ACF plot. Thus, based on Fig7, both models may not be good fits to the data. To further examine whether both models are valid, I applied them to several hypothesis testings: portmanteau test, turning point test, difference-sign test, rank test, and runs test. 
 
 <br/>
-<p align="center"> <img src = "fig8_port.png"> </p>
+<p align="center"> <img src = "./figures/fig8_port.png"> </p>
 <div align="center"> Fig8: Portmanteau tests of ARMA(1,1) and AR(4) residuals </div>
 <br/>
 
 The result of portmanteau tests indicate that residuals of both models are IID noises. The results of the rest of the tests are shown in the following chart. 
 
 <br/>
-<p align="center"> <img src = "fig9_tests.png"> </p>
+<p align="center"> <img src = "./figures/fig9_tests.png"> </p>
 <div align="center"> Fig9: P-values of tests for ARMA(1,1) and AR(4) </div>
 <br/>
 
@@ -96,7 +96,7 @@ All tests indicate that ARMA(1,1) residuals are IID noise, while the rank test i
 In this paper, I have examined the DKSH dataset and concluded that ARMA(1,1) based on maximum likelihood estimation is the best fit to the time series. The results of the diagnostics tests also support the model, though there are some concerns regarding the ACF of residuals. The following plot shows the forecast of the ARMA(1,1). 
 
 <br/>
-<p align="center"> <img src = "fig10_for.png"> </p>
+<p align="center"> <img src = "./figures/fig10_for.png"> </p>
 <div align="center"> Fig10: DKSH time series with up to ten-steps-ahead forecasts and 95% confidence bounds </div>
 <br/>
 
