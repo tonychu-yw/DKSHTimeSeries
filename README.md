@@ -3,7 +3,7 @@
 
 
 ### Preface
-This repo contains the term project for STAT 519 - Time Series Analysis at UW. The DKSH dataset was acquired through an industry-university joint research project initiated by a course at National Taiwan University. Some functions/algorithms used in this project are imported from the website of Professor Donald B. Percival.
+This repo contains the term project for STAT 519 - Time Series Analysis at UW. Some functions/algorithms used in this project are imported from the website of Professor Donald B. Percival.
 
 
 
