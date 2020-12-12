@@ -3,7 +3,7 @@
 
 
 ### Preface
-This repo contains the term project for STAT 519 - Time Series Analysis at UW, including both the code (code.Rmd) and the final report (README.md). Please note that some functions/algorithms used in this project are imported directly from the website of Professor Donald B. Percival.
+This repo contains the term project for STAT 519 - Time Series Analysis at UW, including both the code (code.Rmd) and the final report (README.md). Some functions/algorithms used in this project are imported directly from the website of Professor Donald B. Percival.
 
 
 
