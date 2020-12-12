@@ -3,7 +3,7 @@
 
 
 ### Preface
-This repo contains the term project for STAT 519 - Time Series Analysis at UW, including both the code and the final report. Some functions / algorithms used in this project are imported from the website of Professor Donald B. Percival.
+This repo contains the term project for STAT 519 - Time Series Analysis at UW, including both the code and the final report. Some functions/ algorithms used in this project are imported from the website of Professor Donald B. Percival.
 
 
 
