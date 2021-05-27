@@ -25,7 +25,7 @@ The most significant feature of this time series is that there are several spike
 To further explore this dataset, I plotted the lag plot of lag = 1, histogram of the dataset, and ACF and PACF. 
 
 <br/>
-<p align="center"> <img src = "./figures/fig2_explore1.png"> </p>
+<p align="center"> <img src = "./figures/fig2_explore1.png" width="80%"> </p>
 <div align="center"> Fig2: Preliminary data exploration </div>
 <br/>
 
@@ -42,7 +42,7 @@ t = 32, t = 70, t = 89, and t = 129. I implemented Levinson-Durbin recursions to
 Similarly, I plotted the lag plot of lag = 1, histogram, and ACF and PACF of the new time series.
 
 <br/>
-<p align="center"> <img src = "./figures/fig4_explore2.png"> </p>
+<p align="center"> <img src = "./figures/fig4_explore2.png" width="80%"> </p>
 <div align="center"> Fig4: Data exploration without outliers </div>
 <br/>
 
@@ -75,7 +75,7 @@ The results show that maximum likelihood estimation performs consistently better
 Before declaring that ARMA(1,1) is the best model, we need to conduct diagnostic tests to see whether ARMA(1,1) is a good fit to the data. In comparison, I also conducted diagnostic tests for AR(4) model. 
 
 <br/>
-<p align="center"> <img src = "./figures/fig7_res.png"> </p>
+<p align="center"> <img src = "./figures/fig7_res.png" width="80%"> </p>
 <div align="center"> Fig7: Residuals of ARMA(1,1) and AR(4) models </div>
 <br/>
 
@@ -89,7 +89,7 @@ The results show that ARMA(1,1) seems not a good fit to the data: the residuals 
 The result of portmanteau tests indicate that residuals of both models are IID noises. The results of the rest of the tests are shown in the following chart. 
 
 <br/>
-<p align="center"> <img src = "./figures/fig9_tests.png" width="60%"> </p>
+<p align="center"> <img src = "./figures/fig9_tests.png" width="40%"> </p>
 <div align="center"> Fig9: P-values of tests for ARMA(1,1) and AR(4) </div>
 <br/>
 
